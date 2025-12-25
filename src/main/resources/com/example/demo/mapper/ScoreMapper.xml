@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.ScoreMapper">
+    <insert id="addScoreWithStuAndCou">
+        insert into eas_score (s_id,c_id)
+        values (#{sid},#{cid})
+    </insert>
+
+
+    <delete id="deleteScoreWithStuAndCou">
+        delete from eas_score where  eas_score.c_id =#{cid} and eas_score.s_id =#{sid}
+    </delete>
+
+    <select id="findScoreAll" resultType="com.example.demo.pojo.vo.ScoreVO">
+            SELECT es.id,es.score,es.result,ec.start_date,ec.test_mode, ebc.coursename as courseName, et.name as teacherName FROM eas_score  es
+            LEFT JOIN eas_course ec ON ec.id=es.c_id
+            LEFT JOIN eas_teacher et ON et.id=ec.t_id
+            LEFT JOIN eas_base_course ebc ON ebc.id=ec.base_course_id
+            where es.s_id=#{scorePageQueryDTO.sid}
+            <if test="scorePageQueryDTO.result==0">
+                and 1=1
+            </if>
+             <if test="scorePageQueryDTO.result==1">
+                and es.result="通过"
+            </if>
+            <if test="scorePageQueryDTO.result==2">
+                and es.result="未通过"
+            </if>
+    </select>
+
+
+    <select id="getAllStudentScores" resultType="com.example.demo.pojo.vo.ScoreTeaVO">
+        SELECT es.id , et.`name`,et.sex,et.phone as className,ebc.coursename as courseName,es.score,es.result
+        from eas_student et
+        LEFT JOIN eas_score es on es.s_id= et.id
+
+        LEFT JOIN eas_course ecr ON ecr.id=es.c_id
+        left join eas_course ecrs ON ecrs.id=es.c_id
+
+        LEFT JOIN eas_base_course ebc ON ebc.id=ecr.base_course_id
+        where 1=1 and ecr.t_id=#{tId}
+        <where>
+            <if test="scorePageQueryDTO.baseCourseId!=null and scorePageQueryDTO.baseCourseId!=0">
+                and ebc.id=#{scorePageQueryDTO.baseCourseId}
+            </if>
+
+
+        </where>
+    </select>
+</mapper>

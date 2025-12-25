@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.PermissionMapper">
+
+    <select id="findPersById" resultType="com.example.demo.pojo.Permission">
+        SELECT DISTINCT  ep.* FROM eas_permission ep
+        LEFT JOIN eas_role_permission erp ON erp.eas_permission_id=ep.id
+        WHERE erp.eas_role_id=#{id}
+    </select>
+
+</mapper>
