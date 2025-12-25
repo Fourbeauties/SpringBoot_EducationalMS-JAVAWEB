@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.TeacherMapper">
+
+    <select id="findTeaById" resultType="com.example.demo.pojo.vo.TeacherVO">
+        SELECT eu.*,st.* FROM eas_user  eu
+        LEFT JOIN eas_teacher st ON st.username=eu.username
+        WHERE eu.id=#{id}
+    </select>
+
+    <select id="findTeasByCondition" resultType="com.example.demo.pojo.vo.TeacherVO" >
+
+        SELECT es.* from eas_teacher es
+        <where>
+            <if test="teacherPageQueryDTO.name!=null and teacherPageQueryDTO.name!=''">
+                and es.name like concat('%',#{teacherPageQueryDTO.name},'%')
+            </if>
+            <if test="teacherPageQueryDTO.phone!=null and teacherPageQueryDTO.phone!=''">
+                and es.phone like concat('%',#{teacherPageQueryDTO.phone},'%')
+            </if>
+            <if test="teacherPageQueryDTO.education!=null and teacherPageQueryDTO.education!=''">
+                and  es.education=#{teacherPageQueryDTO.education}
+            </if>
+        </where>
+
+    </select>
+</mapper>

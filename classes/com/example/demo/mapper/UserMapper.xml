@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UserMapper">
+
+    <resultMap id="userMap" type="com.example.demo.pojo.vo.UserVO">
+        <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="locked" column="locked"></result>
+        <collection property="roles" javaType="java.util.List" ofType="com.example.demo.pojo.vo.RoleVO">
+            <id property="id" column="role"></id>
+            <result property="name" column="roleName"></result>
+        </collection>
+        <collection property="permissions" javaType="java.util.List" ofType="com.example.demo.pojo.Permission">
+            <id property="id" column="epId"></id>
+            <result property="text" column="text"></result>
+            <result property="type" column="type"></result>
+            <result property="url" column="url"></result>
+            <result property="parentid" column="parentid"></result>
+            <result property="sortstring" column="sortstring"></result>
+            <result property="available" column="available"></result>
+        </collection>
+    </resultMap>
+
+    <select id="findUserByUsername" resultMap="userMap">
+            select distinct eu.*, ep.* ,ep.id as epId,er.id as role,er.name as roleName from eas_user eu LEFT JOIN
+            eas_user_role eur ON  eur.eas_user_id=eu.id
+            LEFT JOIN eas_role er ON er.id=eur.eas_role_id
+						LEFT JOIN eas_role_permission erp ON  erp.eas_role_id=er.id
+						LEFT JOIN eas_permission ep ON ep.id=erp.eas_permission_id
+            where username=#{username}
+    </select>
+
+    <resultMap id="userAdminMap" type="com.example.demo.pojo.vo.UserAdminVO">
+        <id property="id" column="id"></id>
+        <result property="username" column="username"></result>
+        <result property="password" column="password"></result>
+        <result property="locked" column="locked"></result>
+        <collection property="roles" javaType="java.util.List" ofType="com.example.demo.pojo.vo.RoleVO">
+            <id property="id" column="role"></id>
+            <result property="name" column="roleName"></result>
+        </collection>
+    </resultMap>
+
+    <select id="findAllUsers" resultMap="userAdminMap"  >
+            select distinct eu.*,er.id as role,er.name as roleName from eas_user eu LEFT JOIN
+            eas_user_role eur ON  eur.eas_user_id=eu.id
+            LEFT JOIN eas_role er ON er.id=eur.eas_role_id
+            <where>
+                <if test="userPageQueryDTO.username!=null and userPageQueryDTO.username!=''">
+                    and eu.username like concat('%',#{userPageQueryDTO.username},'%')
+                </if>
+
+                <if test="userPageQueryDTO.roleIds!=null and userPageQueryDTO.roleIds!=0 and userPageQueryDTO.roleIds!=''">
+                    and er.id=#{userPageQueryDTO.roleIds}
+                </if>
+            </where>
+    </select>
+
+    <insert id="addUser" parameterType="com.example.demo.pojo.User" keyProperty="id" useGeneratedKeys="true">
+        insert into eas_user(username,password,locked)
+        values (#{username},#{password},#{locked})
+    </insert>
+
+    <insert id="addEasUserRole">
+        insert into eas_user_role(eas_user_id,eas_role_id)
+        values (#{userId},#{roleId})
+    </insert>
+
+    <select id="findUserByUserId" resultType="com.example.demo.pojo.vo.UserVO" >
+        select distinct eu.*,er.id as role,er.name as roleName from eas_user eu LEFT JOIN
+            eas_user_role eur ON  eur.eas_user_id=eu.id
+            LEFT JOIN eas_role er ON er.id=eur.eas_role_id
+            where eu.id=#{id}
+    </select>
+</mapper>

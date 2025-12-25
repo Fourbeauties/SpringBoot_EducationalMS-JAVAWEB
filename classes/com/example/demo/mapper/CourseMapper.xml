@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.CourseMapper">
+
+
+
+    <select id="findBaseCourseAll" resultType="com.example.demo.pojo.BaseCourse" >
+
+        SELECT es.* from  eas_base_course  es
+        <where>
+            <if test="baseCoursePageQueryDTO.coursename!=null and baseCoursePageQueryDTO.coursename!=''">
+                and es.coursename like concat('%',#{baseCoursePageQueryDTO.coursename},'%')
+            </if>
+            <if test="baseCoursePageQueryDTO.synopsis!=null and baseCoursePageQueryDTO.synopsis!=''">
+                and es.synopsis like concat('%',#{baseCoursePageQueryDTO.synopsis},'%')
+            </if>
+
+        </where>
+
+    </select>
+
+
+
+
+    <!--新增基础课程-->
+    <insert id="addBaseCourse" parameterType="com.example.demo.pojo.BaseCourse">
+        insert into eas_base_course(coursename,synopsis)
+        values (#{coursename},#{synopsis})
+    </insert>
+
+    <update id="editBaseCurse" parameterType="com.example.demo.pojo.BaseCourse">
+        update eas_base_course set coursename = #{coursename},
+         synopsis=#{synopsis}
+        where id=#{id}
+    </update>
+
+    <select id="findCourseAll" resultType="com.example.demo.pojo.vo.CourseVO" parameterType="com.example.demo.pojo.dto.CoursePageQueryDTO">
+        SELECT  ec.*,ebc.coursename as courseName ,et.name as teacherName FROM eas_course ec
+        LEFT JOIN eas_teacher et ON et.id=ec.t_id
+        LEFT JOIN eas_base_course ebc ON ebc.id=ec.base_course_id
+        where ec.complete=0
+            <if test="coursePageQueryDTO.searchKey!=null or coursePageQueryDTO.searchKey!=''">
+                and (et.name like concat('%',#{coursePageQueryDTO.searchKey},'%') or ebc.coursename like concat('%',#{coursePageQueryDTO.searchKey},'%'))
+            </if>
+
+            <if test="coursePageQueryDTO.teacherId!=null and coursePageQueryDTO.teacherId!=0">
+                and ec.t_id=#{coursePageQueryDTO.teacherId}
+            </if>
+    </select>
+
+    <select id="findCourseAllSelected" resultType="com.example.demo.pojo.vo.CourseVO" parameterType="com.example.demo.pojo.dto.CoursePageQueryDTO">
+        SELECT  ec.*,ebc.coursename as courseName ,et.name as teacherName FROM eas_course ec
+        LEFT JOIN eas_teacher et ON et.id=ec.t_id
+        LEFT JOIN eas_base_course ebc ON ebc.id=ec.base_course_id
+        LEFT JOIN eas_score es on es.c_id=ec.id
+        <where>
+            <if test="coursePageQueryDTO.studentId!=0">
+                and es.s_id=#{coursePageQueryDTO.studentId}
+            </if>
+        </where>
+        and ec.complete=0
+    </select>
+
+    <select id="findCourseAllMy" resultType="com.example.demo.pojo.vo.CourseVO" parameterType="com.example.demo.pojo.dto.CoursePageQueryDTO">
+        SELECT  ec.*,ebc.coursename as courseName ,et.name as teacherName FROM eas_course ec
+        LEFT JOIN eas_teacher et ON et.id=ec.t_id
+        LEFT JOIN eas_base_course ebc ON ebc.id=ec.base_course_id
+        <where>
+            <if test="coursePageQueryDTO.teacherId!=null and coursePageQueryDTO.teacherId!=0">
+                and ec.t_id=#{coursePageQueryDTO.teacherId}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="findCourseAllByAdmin" resultType="com.example.demo.pojo.vo.CourseVO" parameterType="com.example.demo.pojo.dto.CoursePageQueryDTO">
+        SELECT  ec.*,ebc.coursename as courseName ,et.name as teacherName FROM eas_course ec
+        LEFT JOIN eas_teacher et ON et.id=ec.t_id
+        LEFT JOIN eas_base_course ebc ON ebc.id=ec.base_course_id
+        <where>
+            <if test="coursePageQueryDTO.teacherName!=null and coursePageQueryDTO.teacherName!=''">
+                and et.name like concat('%',#{coursePageQueryDTO.teacherName},'%')
+            </if>
+            <if test="coursePageQueryDTO.courseName!=null and coursePageQueryDTO.courseName!=''">
+                and ebc.coursename like concat('%',#{coursePageQueryDTO.courseName},'%')
+            </if>
+        </where>
+    </select>
+
+
+    <!--新增课程-->
+    <insert id="addCourse" parameterType="com.example.demo.pojo.Course">
+        insert into  eas_course(start_date,end_date,class_hour,test_mode,student_num,choice_num,complete,t_id,base_course_id)
+        values (#{startDate},#{endDate},#{classHour},#{testMode},#{studentNum},#{choiceNum},#{complete},#{tId},#{baseCourseId})
+    </insert>
+
+    <select id="findCourseByCid" resultType="com.example.demo.pojo.vo.CourseVO">
+        SELECT  ec.*,ebc.coursename as courseName ,et.name as teacherName FROM eas_course ec
+        LEFT JOIN eas_teacher et ON et.id=ec.t_id
+        LEFT JOIN eas_base_course ebc ON ebc.id=ec.base_course_id
+        WHERE ec.id=#{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.ClassMapper">
+    <select id="findAllClass" resultType="com.example.demo.pojo.eClass">
+        select * from eas_class
+        <where>
+            <if test="classPageQueryDTO.classes!=null">
+                and classes like concat('%',#{classPageQueryDTO.classes},'%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="add" parameterType="com.example.demo.pojo.eClass">
+        insert into eas_class(classes)
+        values (#{classes})
+    </insert>
+
+    <update id="edit" parameterType="com.example.demo.pojo.eClass">
+        update eas_class set classes=#{classes}
+        where id=#{id}
+    </update>
+
+</mapper>
